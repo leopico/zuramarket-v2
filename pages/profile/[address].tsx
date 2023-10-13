@@ -1,4 +1,5 @@
 import {
+  useAddress,
   useContract,
   useOwnedNFTs,
   useValidDirectListings,
@@ -16,6 +17,8 @@ import {
 } from "../../const/contractAddresses";
 import styles from "../../styles/Profile.module.css";
 import randomColor from "../../util/randomColor";
+import { ADMIN_ADDRESSES } from "../../const/contractAddresses";
+import Link from "next/link";
 
 const [randomColor1, randomColor2, randomColor3, randomColor4] = [
   randomColor(),
@@ -26,6 +29,7 @@ const [randomColor1, randomColor2, randomColor3, randomColor4] = [
 
 export default function ProfilePage() {
   const router = useRouter();
+  const address = useAddress();
   const [tab, setTab] = useState<"nfts" | "listings" | "auctions">("nfts");
 
   const { contract: nftCollection } = useContract(NFT_COLLECTION_ADDRESS);
@@ -84,7 +88,16 @@ export default function ProfilePage() {
         >
           NFTs
         </h3>
-        <h3
+
+        {
+          address === ADMIN_ADDRESSES && (
+            <Link href="/sell">
+              <h3 className={styles.tab}>Sell Hash</h3>
+            </Link>
+          )
+        }
+
+        {/* <h3
           className={`${styles.tab} 
         ${tab === "listings" ? styles.activeTab : ""}`}
           onClick={() => setTab("listings")}
@@ -97,13 +110,12 @@ export default function ProfilePage() {
           onClick={() => setTab("auctions")}
         >
           Auctions
-        </h3>
+        </h3> */}
       </div>
 
       <div
-        className={`${
-          tab === "nfts" ? styles.activeTabContent : styles.tabContent
-        }`}
+        className={`${tab === "nfts" ? styles.activeTabContent : styles.tabContent
+          }`}
       >
         <NFTGrid
           data={ownedNfts}
@@ -113,9 +125,8 @@ export default function ProfilePage() {
       </div>
 
       <div
-        className={`${
-          tab === "listings" ? styles.activeTabContent : styles.tabContent
-        }`}
+        className={`${tab === "listings" ? styles.activeTabContent : styles.tabContent
+          }`}
       >
         {loadingDirects ? (
           <p>Loading...</p>
@@ -129,9 +140,8 @@ export default function ProfilePage() {
       </div>
 
       <div
-        className={`${
-          tab === "auctions" ? styles.activeTabContent : styles.tabContent
-        }`}
+        className={`${tab === "auctions" ? styles.activeTabContent : styles.tabContent
+          }`}
       >
         {loadingAuctions ? (
           <p>Loading...</p>

@@ -3,7 +3,10 @@ import { ThirdwebProvider } from "@thirdweb-dev/react";
 import { Navbar } from "../components/Navbar/Navbar";
 import NextNProgress from "nextjs-progressbar";
 import { NETWORK } from "../const/contractAddresses";
+import Head from "next/head";
 import "../styles/globals.css";
+import "../styles/global.css";
+import Footer from "../components/Footer/Footer";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -11,6 +14,12 @@ function MyApp({ Component, pageProps }: AppProps) {
       clientId={process.env.NEXT_PUBLIC_TEMPLATE_CLIENT_ID}
       activeChain={NETWORK}
     >
+      <Head>
+        <title>HASH - Zuraverse</title>
+        {/* Add any other metadata, meta tags, or links you need */}
+        <meta name="description" content="H.A.C.K is the gateway to Zuraverse. H.A.C.K NFTs introduce Zuraverse to the Web3 audience.
+They are the stepping stone in the formation of Zuraverse." />
+      </Head>
       {/* Progress bar when navigating between pages */}
       <NextNProgress
         color="var(--color-tertiary)"
@@ -24,6 +33,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       <Navbar />
       {/* Render the actual component (page) */}
       <Component {...pageProps} />
+      <Footer />
     </ThirdwebProvider>
   );
 }

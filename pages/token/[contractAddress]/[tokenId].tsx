@@ -131,7 +131,7 @@ export default function TokenPage({ nft, contractMetadata }: Props) {
 
               <h3 className={styles.descriptionTitle}>Traits</h3>
 
-              <div className={styles.traitsContainer}>
+              {/* <div className={styles.traitsContainer}>
                 {Object.entries(nft?.metadata?.attributes || {}).map(
                   ([key, value]) => (
                     <div className={styles.traitContainer} key={key}>
@@ -142,6 +142,16 @@ export default function TokenPage({ nft, contractMetadata }: Props) {
                     </div>
                   )
                 )}
+              </div> */}
+
+              <div className={styles.traitsContainer}>
+                {/* @ts-ignore */}
+                {nft?.metadata?.attributes.map((attribute, index) => (
+                  <div className={styles.traitContainer} key={index}>
+                    <p className={styles.traitName}>{attribute.trait_type}</p>
+                    <p className={styles.traitValue}>{attribute.value.toString() || ""}</p>
+                  </div>
+                ))}
               </div>
 
               <h3 className={styles.descriptionTitle}>History</h3>
@@ -363,13 +373,13 @@ export const getStaticProps: GetStaticProps = async (context) => {
 
   const contract = await sdk.getContract(NFT_COLLECTION_ADDRESS);
 
-  const nft = await contract.erc721.get(tokenId);
+  const nft = await contract.erc1155.get(tokenId);
 
   let contractMetadata;
 
   try {
     contractMetadata = await contract.metadata.get();
-  } catch (e) {}
+  } catch (e) { }
 
   return {
     props: {
@@ -387,7 +397,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
   const contract = await sdk.getContract(NFT_COLLECTION_ADDRESS);
 
-  const nfts = await contract.erc721.getAll();
+  const nfts = await contract.erc1155.getAll();
 
   const paths = nfts.map((nft) => {
     return {

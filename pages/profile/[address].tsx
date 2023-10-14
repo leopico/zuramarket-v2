@@ -17,7 +17,6 @@ import {
 } from "../../const/contractAddresses";
 import styles from "../../styles/Profile.module.css";
 import randomColor from "../../util/randomColor";
-import { ADMIN_ADDRESSES } from "../../const/contractAddresses";
 import Link from "next/link";
 
 const [randomColor1, randomColor2, randomColor3, randomColor4] = [
@@ -30,6 +29,7 @@ const [randomColor1, randomColor2, randomColor3, randomColor4] = [
 export default function ProfilePage() {
   const router = useRouter();
   const address = useAddress();
+  const adminAddress = process.env.NEXT_PUBLIC_ADMINADDRESS
   const [tab, setTab] = useState<"nfts" | "listings" | "auctions">("nfts");
 
   const { contract: nftCollection } = useContract(NFT_COLLECTION_ADDRESS);
@@ -90,7 +90,7 @@ export default function ProfilePage() {
         </h3>
 
         {
-          address === ADMIN_ADDRESSES && (
+          address === adminAddress && (
             <Link href="/sell">
               <h3 className={styles.tab}>Sell Hash</h3>
             </Link>

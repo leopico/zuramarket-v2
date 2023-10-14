@@ -17,10 +17,6 @@ export const NFT_COLLECTION_ADDRESS =
 export const NFT_ZURAHOUSE_ADDRESS =
   "0x40A5485DcD011531248d58D9f90A409b522a1729";
 
-export const ADMIN_ADDRESSES =
-  "0x721A6D070Fb83Ff8Ab581D011467C1CCB6F4F399";
-
-
 // (Optional) Set up the URL of where users can view transactions on
 // For example, below, we use Mumbai.polygonscan to view transactions on the Mumbai testnet.
 export const ETHERSCAN_URL = "https://mumbai.polygonscan.com";

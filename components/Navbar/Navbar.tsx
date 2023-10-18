@@ -1,4 +1,4 @@
-import { ConnectWallet, useAddress } from "@thirdweb-dev/react";
+import { ConnectWallet, MediaRenderer, darkTheme, useAddress } from "@thirdweb-dev/react";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./Navbar.module.css";
@@ -10,6 +10,19 @@ import styles from "./Navbar.module.css";
  */
 export function Navbar() {
   const address = useAddress();
+
+  const customTheme = darkTheme({
+    fontFamily: 'Futura',
+    colors: {
+      modalBg: "#1b1d22",
+      primaryText: "#fff",
+      walletSelectorButtonHoverBg: "#736969",
+      borderColor: "#31333a",
+      separatorLine: "#49516e",
+      success: "#5bb98c",
+      danger: "#e54d2e"
+    }
+  })
 
   return (
     <section className="bg-[#191c1f] sticky top-0 z-30 shadow-sm ">
@@ -44,7 +57,20 @@ export function Navbar() {
 
           <div className="flex space-x-2">
             <div className="">
-              <ConnectWallet theme="dark" btnTitle="Connect Wallet" />
+              <ConnectWallet 
+              theme={customTheme} 
+              btnTitle="Connect"
+              className={styles.connectButton}
+              modalTitle="Connect Wallet Zurains"
+              modalTitleIconUrl="/images/navbar_icon.jpg"
+              welcomeScreen={{
+                title: "Connect wallet to claim NFT",
+                subtitle: "Claim your zurahouse NFT now!",
+                img: {
+                  src: "/images/Zura_banner.jpg"
+                }
+              }}
+              />
             </div>
             {address && (
               <Link className={styles.link} href={`/profile/${address}`}>

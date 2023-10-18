@@ -60,7 +60,6 @@ export function Navbar() {
               <ConnectWallet 
               theme={customTheme} 
               btnTitle="Connect"
-              className={styles.connectButton}
               modalTitle="Connect Wallet Zurains"
               modalTitleIconUrl="/images/navbar_icon.jpg"
               welcomeScreen={{

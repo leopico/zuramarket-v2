@@ -16,7 +16,7 @@ export default function Buy() {
         <Image
           alt="banner"
           className="object-cover"
-          src="/images/HASH.jpg"
+          src="/images/Zura_HQ.jpg"
           width={2000}
           height={1000}
         />

@@ -92,7 +92,7 @@ export default function ProfilePage() {
         {
           address === adminAddress && (
             <Link href="/sell">
-              <h3 className={styles.tab}>Sell Hash</h3>
+              <h3 className={styles.tab}>Sell House</h3>
             </Link>
           )
         }

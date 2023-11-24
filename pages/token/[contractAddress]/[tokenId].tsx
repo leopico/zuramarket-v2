@@ -1,6 +1,7 @@
 import {
   MediaRenderer,
   ThirdwebNftMedia,
+  useActiveClaimCondition,
   useContract,
   useContractEvents,
   useValidDirectListings,
@@ -23,6 +24,7 @@ import randomColor from "../../../util/randomColor";
 import Skeleton from "../../../components/Skeleton/Skeleton";
 import toast, { Toaster } from "react-hot-toast";
 import toastStyle from "../../../util/toastConfig";
+import { ethers } from "ethers";
 
 type Props = {
   nft: NFT;
@@ -42,6 +44,10 @@ export default function TokenPage({ nft, contractMetadata }: Props) {
 
   // Connect to NFT Collection smart contract
   const { contract: nftCollection } = useContract(NFT_COLLECTION_ADDRESS);
+
+  //mint logic here we go (This is modification one)
+  const { data: claimPhase, isLoading: loadingClaimPhase } = useActiveClaimCondition(nftCollection, nft.metadata.id);
+  // console.log(claimPhase, loadingClaimPhase, nft.metadata.id);
 
   const { data: directListing, isLoading: loadingDirect } =
     useValidDirectListings(marketplace, {
@@ -237,11 +243,49 @@ export default function TokenPage({ nft, contractMetadata }: Props) {
               </div>
             </Link>
 
+            {/* modification for mint logic */}
             <div className={styles.pricingContainer}>
               {/* Pricing information */}
               <div className={styles.pricingInfo}>
-                <p className={styles.label}>Price</p>
-                <div className={styles.pricingValue}>
+                {
+                  !loadingClaimPhase ? (
+                    claimPhase && (
+                      <div>
+                        <p><span className={styles.label}>Phase name</span>: {claimPhase.metadata?.name}</p>
+                        <p><span className={styles.label}>Supply</span>: {claimPhase.availableSupply}</p>
+                        <p><span className={styles.label}>Maximum claimable per wallet</span>: {claimPhase.maxClaimablePerWallet}</p>
+                        <p><span className={styles.label}>Current Minted</span>: {claimPhase.currentMintSupply}</p>
+                        <p><span className={styles.label}>Price</span>: {ethers.utils.formatUnits(claimPhase.price)}{" " + claimPhase.currencyMetadata.symbol}</p>
+                      </div>
+                    )
+                  ) : (
+                    <Skeleton width="120" height="57" />
+                  )
+                }
+                <div className="pt-3">
+                  <Web3Button
+                    contractAddress={NFT_COLLECTION_ADDRESS}
+                    action={(nftContract) => nftContract.erc1155.claim(nft.metadata.id, 1)}
+                    className={styles.btn}
+                    onSuccess={() => {
+                      toast(`success!`, {
+                        icon: "✅",
+                        style: toastStyle,
+                        position: "bottom-center",
+                      });
+                    }}
+                    onError={(e) => {
+                      toast(`failed! Reason: ${e.message}`, {
+                        icon: "❌",
+                        style: toastStyle,
+                        position: "bottom-center",
+                      });
+                    }}
+                  >
+                    Claim House Nft
+                  </Web3Button>
+                </div>
+                {/* <div className={styles.pricingValue}>
                   {loadingContract || loadingDirect || loadingAuction ? (
                     <Skeleton width="120" height="24" />
                   ) : (
@@ -261,9 +305,9 @@ export default function TokenPage({ nft, contractMetadata }: Props) {
                       )}
                     </>
                   )}
-                </div>
+                </div> */}
 
-                <div>
+                {/* <div>
                   {loadingAuction ? (
                     <Skeleton width="120" height="24" />
                   ) : (
@@ -286,11 +330,15 @@ export default function TokenPage({ nft, contractMetadata }: Props) {
                       )}
                     </>
                   )}
-                </div>
+                </div> */}
+
               </div>
+
             </div>
 
-            {loadingContract || loadingDirect || loadingAuction ? (
+
+
+            {/* {loadingContract || loadingDirect || loadingAuction ? (
               <Skeleton width="100%" height="164" />
             ) : (
               <>
@@ -356,7 +404,9 @@ export default function TokenPage({ nft, contractMetadata }: Props) {
                   Place bid
                 </Web3Button>
               </>
-            )}
+            )} */}
+
+
           </div>
         </div>
       </Container>

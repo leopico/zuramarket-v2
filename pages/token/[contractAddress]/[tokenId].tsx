@@ -2,8 +2,10 @@ import {
   MediaRenderer,
   ThirdwebNftMedia,
   useActiveClaimCondition,
+  useAddress,
   useContract,
   useContractEvents,
+  useOwnedNFTs,
   useValidDirectListings,
   useValidEnglishAuctions,
   Web3Button,
@@ -35,6 +37,8 @@ const [randomColor1, randomColor2] = [randomColor(), randomColor()];
 
 export default function TokenPage({ nft, contractMetadata }: Props) {
   const [bidValue, setBidValue] = useState<string>();
+  const address = useAddress();
+  // console.log(address);
 
   // Connect to marketplace smart contract
   const { contract: marketplace, isLoading: loadingContract } = useContract(
@@ -45,9 +49,30 @@ export default function TokenPage({ nft, contractMetadata }: Props) {
   // Connect to NFT Collection smart contract
   const { contract: nftCollection } = useContract(NFT_COLLECTION_ADDRESS);
 
-  //mint logic here we go (This is modification one)
+  //start mint logic here we go (This is modification one)
   const { data: claimPhase, isLoading: loadingClaimPhase } = useActiveClaimCondition(nftCollection, nft.metadata.id);
-  // console.log(claimPhase, loadingClaimPhase, nft.metadata.id);
+  // console.log(claimPhase);
+
+  const { data: ownedNfts, isLoading: loadingOwnedNfts } = useOwnedNFTs(
+    nftCollection,
+    address
+  );
+
+  const quantityOwnedString = ownedNfts?.[0]?.quantityOwned;
+
+  let ownedNft;
+
+  if (quantityOwnedString !== undefined && typeof quantityOwnedString === 'string') {
+    // Now, safely convert the string to a number
+    ownedNft = parseInt(quantityOwnedString, 10);
+  } else {
+    console.error("Invalid or undefined quantityOwned");
+    ownedNft = 0; // or some default value
+  };
+
+  // console.log(ownedNft, typeof ownedNft);
+
+  //end mint logic here we go (This is modification one)
 
   const { data: directListing, isLoading: loadingDirect } =
     useValidDirectListings(marketplace, {
@@ -243,7 +268,7 @@ export default function TokenPage({ nft, contractMetadata }: Props) {
               </div>
             </Link>
 
-            {/* modification for mint logic */}
+            {/*start modification for mint logic */}
             <div className={styles.pricingContainer}>
               {/* Pricing information */}
               <div className={styles.pricingInfo}>
@@ -263,27 +288,41 @@ export default function TokenPage({ nft, contractMetadata }: Props) {
                   )
                 }
                 <div className="pt-3">
-                  <Web3Button
-                    contractAddress={NFT_COLLECTION_ADDRESS}
-                    action={(nftContract) => nftContract.erc1155.claim(nft.metadata.id, 1)}
-                    className={styles.btn}
-                    onSuccess={() => {
-                      toast(`success!`, {
-                        icon: "✅",
-                        style: toastStyle,
-                        position: "bottom-center",
-                      });
-                    }}
-                    onError={(e) => {
-                      toast(`failed! Reason: ${e.message}`, {
-                        icon: "❌",
-                        style: toastStyle,
-                        position: "bottom-center",
-                      });
-                    }}
-                  >
-                    Claim House Nft
-                  </Web3Button>
+                  {
+                    !loadingOwnedNfts ? (
+                      ownedNft >= 1 ? (
+                        <div className=" bg-slate-300 rounded-lg text-center text-slate-700 w-full px-2 py-3">
+                          Cann&#39;t claim more than maximum allowed quantity
+                        </div>
+                      ) : (
+                        <Web3Button
+                          contractAddress={NFT_COLLECTION_ADDRESS}
+                          action={(nftContract) => nftContract.erc1155.claim(nft.metadata.id, 1)}
+                          className={styles.btn}
+                          onSuccess={() => {
+                            toast(`success!`, {
+                              icon: "✅",
+                              style: toastStyle,
+                              position: "bottom-center",
+                            });
+                          }}
+                          onError={(e) => {
+                            toast(`failed! Reason: ${e.message}`, {
+                              icon: "❌",
+                              style: toastStyle,
+                              position: "bottom-center",
+                            });
+                          }}
+                        >
+                          Claim House Nft
+                        </Web3Button>
+                      )
+                    ) : (
+                      <Skeleton width="120" height="57" />
+                    )
+                  }
+                  {/*end modification for mint logic */}
+
                 </div>
                 {/* <div className={styles.pricingValue}>
                   {loadingContract || loadingDirect || loadingAuction ? (

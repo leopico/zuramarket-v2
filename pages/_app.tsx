@@ -13,9 +13,18 @@ function MyApp({ Component, pageProps }: AppProps) {
     <ThirdwebProvider
       clientId={process.env.NEXT_PUBLIC_TEMPLATE_CLIENT_ID}
       activeChain={NETWORK}
+      sdkOptions={{
+        gasless: {
+          biconomy: {
+            apiId: process.env.NEXT_PUBLIC_BICONOMY_APIID,
+            apiKey: process.env.NEXT_PUBLIC_BICONOMY_APIKEY,
+            deadlineSeconds: 3600,
+          }
+        }
+      }}
     >
       <Head>
-        <title>HASH - Zuraverse</title>
+        <title>HOUSE - Zuraverse</title>
         {/* Add any other metadata, meta tags, or links you need */}
         <meta name="description" content="H.A.C.K is the gateway to Zuraverse. H.A.C.K NFTs introduce Zuraverse to the Web3 audience.
 They are the stepping stone in the formation of Zuraverse." />

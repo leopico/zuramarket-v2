@@ -6,11 +6,8 @@ const TabSection = () => {
     return (
         <div className='container mx-auto'>
             <div className=' justify-between items-center hidden sm:flex'>
-                <ul className='flex pl-8 space-x-7'>
-                    <li className='underline cursor-pointer'>Zuraverse</li>
-                    <li className='text-[#4e4e4e] cursor-not-allowed'>Conzura</li>
-                    <li className='text-[#4e4e4e] cursor-not-allowed'>Lync.world</li>
-                    <li className='text-[#4e4e4e] cursor-not-allowed'>Bhangola</li>
+                <ul className='pl-8'>
+                    <li className='underline underline-offset-8 cursor-pointer'>Zuraverse</li>
                 </ul>
                 <div className='pr-8 hidden sm:flex justify-center items-center cursor-pointer'>
                     <span className="me-3">See All</span>

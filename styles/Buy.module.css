@@ -52,8 +52,15 @@
 }
 
 /* Less than 600 */
-@media (max-width: 600px) {
+@media (min-width: 403px) and (max-width: 600px) {
   .nftContainer {
     width: 45%;
+  }
+}
+
+/* Less than 402 */
+@media (max-width: 402px) {
+  .nftContainer {
+    width: 100%;
   }
 }

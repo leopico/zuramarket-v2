@@ -58,19 +58,13 @@ export function Navbar() {
             <div className="">
               <ConnectWallet
                 theme={customTheme}
-                btnTitle="Connect"
-                modalTitle="Connect Wallet Zurains"
+                modalSize={"compact"}
+                btnTitle="Sign In"
+                modalTitle="WELCOME"
                 modalTitleIconUrl="/images/navbar_icon.jpg"
-                welcomeScreen={{
-                  title: "Connect wallet to claim NFT",
-                  subtitle: "Claim your zurahouse NFT now!",
-                  img: {
-                    src: "/images/Zura_banner.jpg"
-                  }
-                }}
                 switchToActiveChain={true}
                 auth={{
-                  loginOptional: true,
+                  loginOptional: true,  
                 }}
               />
             </div>

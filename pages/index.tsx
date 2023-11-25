@@ -2,12 +2,13 @@ import type { NextPage } from "next";
 import styles from "../styles/Home.module.css";
 import Image from "next/image";
 import TabSection from "../components/Tab/TabSection";
+import Link from "next/link";
 
 const Home: NextPage = () => {
   return (
     <>
       <div className={styles.container}>
-        <section className="container mx-auto">
+        <section className="container mx-auto hidden sm:block">
           <div className="relative">
             {/* Layer 0 */}
             <div className="absolute lg:-bottom-24 xl:-bottom-36 -left-28 w-full h-full hidden lg:block">
@@ -56,15 +57,12 @@ const Home: NextPage = () => {
                 </p>
               </div>
               <div className=" pt-8 lg:pt-10 xl:pt-16 text-left flex">
-                <button className="px-12 py-2 text-md me-5
+                <Link href="https://zuraverse.xyz/" target="_blink">
+                  <button className="px-8 py-2 text-md me-5
                lg:me-14 rounded bg-blue-cus text-white tracking-wider hidden sm:block">
-                  Explore
-                </button>
-                <button
-                  className="px-12 py-2 text-md rounded bg-black-cus border-2
-                 border-white-cus text-white tracking-wide hidden sm:block">
-                  Read More
-                </button>
+                    Know More
+                  </button>
+                </Link>
               </div>
             </div>
 
@@ -92,8 +90,16 @@ const Home: NextPage = () => {
           </div>
         </section>
       </div>
+      <section className="mx-auto sm:hidden flex justify-center items-center mb-8">
+        <Image
+          alt="layer_0"
+          src="/images/mob-banner1.png"
+          width={400}
+          height={400}
+          className="object-cover w-full"
+        />
+      </section>
       <TabSection />
-
     </>
   );
 };

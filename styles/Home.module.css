@@ -27,14 +27,27 @@
   animation: moveUpDown 5s ease-in-out infinite alternate;
 }
 
-@media (max-width: 445px) {
+@media (max-width: 640px) {
   .container {
-    min-height: 25vh;
+    min-height: 0vh;
+    min-width: none;
   }
 }
 
-@media (min-width: 445px) and (max-width: 991px) {
+@media (min-width: 641px) and (max-width: 991px) {
   .container {
     min-height: 40vh;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1017px) {
+  .container {
+    min-height: 50vh;
+  }
+}
+
+@media (min-width: 1018px) and (max-width: 1059px) {
+  .container {
+    min-height: 65vh;
   }
 }

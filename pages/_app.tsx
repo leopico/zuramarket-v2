@@ -28,13 +28,10 @@ function MyApp({ Component, pageProps }: AppProps) {
             apiKey: process.env.NEXT_PUBLIC_BICONOMY_APIKEY,
             deadlineSeconds: 3600,
           }
-        }
+        } 
       }}
       supportedWallets={[
-        metamaskWallet({ recommended: true}),
-        coinbaseWallet(),
-        trustWallet(),
-        walletConnect(),
+        metamaskWallet(),
         embeddedWallet({ recommended: true }),
       ]}
     >

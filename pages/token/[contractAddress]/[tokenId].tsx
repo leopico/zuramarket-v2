@@ -292,7 +292,7 @@ export default function TokenPage({ nft, contractMetadata }: Props) {
                     !loadingOwnedNfts ? (
                       ownedNft >= 1 ? (
                         <div className=" bg-slate-300 rounded-lg text-center text-slate-700 w-full px-2 py-3">
-                          Cann&#39;t claim more than maximum allowed quantity
+                          Can&#39;t claim more than maximum allowed quantity
                         </div>
                       ) : (
                         <Web3Button

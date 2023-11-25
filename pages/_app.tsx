@@ -1,5 +1,12 @@
+import {
+  ThirdwebProvider,
+  coinbaseWallet, 
+  embeddedWallet, 
+  metamaskWallet, 
+  trustWallet, 
+  walletConnect,
+} from "@thirdweb-dev/react";
 import type { AppProps } from "next/app";
-import { ThirdwebProvider } from "@thirdweb-dev/react";
 import { Navbar } from "../components/Navbar/Navbar";
 import NextNProgress from "nextjs-progressbar";
 import { NETWORK } from "../const/contractAddresses";
@@ -9,6 +16,7 @@ import "../styles/global.css";
 import Footer from "../components/Footer/Footer";
 
 function MyApp({ Component, pageProps }: AppProps) {
+
   return (
     <ThirdwebProvider
       clientId={process.env.NEXT_PUBLIC_TEMPLATE_CLIENT_ID}
@@ -22,6 +30,13 @@ function MyApp({ Component, pageProps }: AppProps) {
           }
         }
       }}
+      supportedWallets={[
+        metamaskWallet({ recommended: true}),
+        coinbaseWallet(),
+        trustWallet(),
+        walletConnect(),
+        embeddedWallet({ recommended: true }),
+      ]}
     >
       <Head>
         <title>HOUSE - Zuraverse</title>

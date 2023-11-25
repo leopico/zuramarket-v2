@@ -1,8 +1,7 @@
-import { ConnectWallet, MediaRenderer, darkTheme, useAddress } from "@thirdweb-dev/react";
+import { ConnectWallet, darkTheme, useAddress } from "@thirdweb-dev/react";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./Navbar.module.css";
-
 
 /**
  * Navigation bar that shows up on all pages.
@@ -57,18 +56,22 @@ export function Navbar() {
 
           <div className="flex space-x-2">
             <div className="">
-              <ConnectWallet 
-              theme={customTheme} 
-              btnTitle="Connect"
-              modalTitle="Connect Wallet Zurains"
-              modalTitleIconUrl="/images/navbar_icon.jpg"
-              welcomeScreen={{
-                title: "Connect wallet to claim NFT",
-                subtitle: "Claim your zurahouse NFT now!",
-                img: {
-                  src: "/images/Zura_banner.jpg"
-                }
-              }}
+              <ConnectWallet
+                theme={customTheme}
+                btnTitle="Connect"
+                modalTitle="Connect Wallet Zurains"
+                modalTitleIconUrl="/images/navbar_icon.jpg"
+                welcomeScreen={{
+                  title: "Connect wallet to claim NFT",
+                  subtitle: "Claim your zurahouse NFT now!",
+                  img: {
+                    src: "/images/Zura_banner.jpg"
+                  }
+                }}
+                switchToActiveChain={true}
+                auth={{
+                  loginOptional: true,
+                }}
               />
             </div>
             {address && (

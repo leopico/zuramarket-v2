@@ -1,7 +1,11 @@
-import { ConnectWallet, darkTheme, useAddress } from "@thirdweb-dev/react";
+import { useAddress } from "@thirdweb-dev/react";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./Navbar.module.css";
+import { useContext } from "react";
+import WalletConnectContext from "../../context/WalletContext";
+import SetContractContext from "../../context/SetContractContext";
+
 
 /**
  * Navigation bar that shows up on all pages.
@@ -10,18 +14,8 @@ import styles from "./Navbar.module.css";
 export function Navbar() {
   const address = useAddress();
 
-  const customTheme = darkTheme({
-    fontFamily: 'Futura',
-    colors: {
-      modalBg: "#1b1d22",
-      primaryText: "#fff",
-      walletSelectorButtonHoverBg: "#736969",
-      borderColor: "#31333a",
-      separatorLine: "#49516e",
-      success: "#5bb98c",
-      danger: "#e54d2e"
-    }
-  })
+  const {  connect, loading, addr, logout } = useContext(WalletConnectContext);
+  const { handleMint } = useContext(SetContractContext);
 
   return (
     <section className="bg-[#191c1f] sticky top-0 z-30 shadow-sm ">
@@ -54,33 +48,44 @@ export function Navbar() {
             </Link>
           </div>
 
-          <div className="flex space-x-2">
-            <div className="">
-              <ConnectWallet
-                theme={customTheme}
-                modalSize={"compact"}
-                btnTitle="Sign In"
-                modalTitle="WELCOME"
-                modalTitleIconUrl="/images/navbar_icon.jpg"
-                switchToActiveChain={true}
-                auth={{
-                  loginOptional: true,  
-                }}
-              />
-            </div>
-            {address && (
-              <Link className={styles.link} href={`/profile/${address}`}>
-                <Image
-                  className={styles.profileImage}
-                  src="/user-icon.png"
-                  width={42}
-                  height={42}
-                  alt="Profile"
-                />
-              </Link>
-            )}
+          <div className="flex space-x-3 items-center">
+            {
+              addr && !loading && (
+                <div className="text-gray-300 text-sm font-bold">{addr}</div>
+              )
+            }
+            {
+              addr && !loading ? (
+                <button
+                    onClick={logout}
+                    className="font-bold bg-blue-cus px-6 py-2 sm:px-12 sm:py-3 rounded-md hover:bg-blue-cus/95"
+              >
+                Log out
+              </button>
+              ) : (
+                <button
+                    onClick={connect}
+                    className="font-bold bg-blue-cus px-12 py-3 rounded-md hover:bg-blue-cus/95"
+              >
+                {
+                  !!loading ? "loading" : "Sign In"
+                }
+              </button>
+              )
+            }
+              
+              {addr && !loading && (
+                <Link className={styles.link} href={`/`}>
+                  <Image
+                    className={styles.profileImage}
+                    src="/user-icon.png"
+                    width={42}
+                    height={42}
+                    alt="Profile"
+                  />
+                </Link>
+              )}
           </div>
-
         </nav>
       </div>
     </section>

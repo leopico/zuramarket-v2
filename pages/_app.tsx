@@ -1,10 +1,7 @@
 import {
   ThirdwebProvider,
-  coinbaseWallet, 
-  embeddedWallet, 
-  metamaskWallet, 
-  trustWallet, 
-  walletConnect,
+  embeddedWallet,
+  metamaskWallet,
 } from "@thirdweb-dev/react";
 import type { AppProps } from "next/app";
 import { Navbar } from "../components/Navbar/Navbar";
@@ -14,6 +11,9 @@ import Head from "next/head";
 import "../styles/globals.css";
 import "../styles/global.css";
 import Footer from "../components/Footer/Footer";
+import { WalletContextProvider } from "../context/WalletContext";
+import { SetContractContextProvider } from "../context/SetContractContext";
+
 
 function MyApp({ Component, pageProps }: AppProps) {
 
@@ -28,7 +28,7 @@ function MyApp({ Component, pageProps }: AppProps) {
             apiKey: process.env.NEXT_PUBLIC_BICONOMY_APIKEY,
             deadlineSeconds: 3600,
           }
-        } 
+        }
       }}
       supportedWallets={[
         metamaskWallet(),
@@ -41,20 +41,24 @@ function MyApp({ Component, pageProps }: AppProps) {
         <meta name="description" content="H.A.C.K is the gateway to Zuraverse. H.A.C.K NFTs introduce Zuraverse to the Web3 audience.
 They are the stepping stone in the formation of Zuraverse." />
       </Head>
-      {/* Progress bar when navigating between pages */}
-      <NextNProgress
-        color="var(--color-tertiary)"
-        startPosition={0.3}
-        stopDelayMs={200}
-        height={3}
-        showOnShallow={true}
-      />
+      <WalletContextProvider>
+        <SetContractContextProvider>
+          {/* Progress bar when navigating between pages */}
+          <NextNProgress
+            color="var(--color-tertiary)"
+            startPosition={0.3}
+            stopDelayMs={200}
+            height={3}
+            showOnShallow={true}
+          />
 
-      {/* Render the navigation menu above each component */}
-      <Navbar />
-      {/* Render the actual component (page) */}
-      <Component {...pageProps} />
-      <Footer />
+          {/* Render the navigation menu above each component */}
+          <Navbar />
+          {/* Render the actual component (page) */}
+          <Component {...pageProps} />
+          <Footer />
+        </SetContractContextProvider>
+      </WalletContextProvider>
     </ThirdwebProvider>
   );
 }

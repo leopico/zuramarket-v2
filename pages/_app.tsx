@@ -13,7 +13,9 @@ import "../styles/global.css";
 import Footer from "../components/Footer/Footer";
 import { WalletContextProvider } from "../context/WalletContext";
 import { SetContractContextProvider } from "../context/SetContractContext";
-
+import { AuthCoreContextProvider } from "@particle-network/auth-core-modal";
+import { PolygonMumbai } from "@particle-network/chains";
+import { AuthType } from "@particle-network/auth-core";
 
 function MyApp({ Component, pageProps }: AppProps) {
 
@@ -38,9 +40,27 @@ function MyApp({ Component, pageProps }: AppProps) {
       <Head>
         <title>HOUSE - Zuraverse</title>
         {/* Add any other metadata, meta tags, or links you need */}
-        <meta name="description" content="H.A.C.K is the gateway to Zuraverse. H.A.C.K NFTs introduce Zuraverse to the Web3 audience.
-They are the stepping stone in the formation of Zuraverse." />
+        <meta name="description" content="H.A.C.K is the gateway to Zuraverse. H.A.C.K NFTs introduce Zuraverse to the Web3 audience.They are the stepping stone in the formation of Zuraverse." />
       </Head>
+      
+      <AuthCoreContextProvider
+        options={{
+          projectId: "c0de07ad-1fca-44dc-94a4-accf4b9348f1",
+          clientKey: "cC8QRaFuPPT5Vc31eNLM6pEVgBu5FJ4eQ9z8fhpW",
+          appId: "cee324cc-49bb-4442-909a-fb71f7b4e429",
+          authTypes: [AuthType.google, AuthType.discord, AuthType.twitter ],
+          erc4337: {
+            name: "SIMPLE",
+            version: "1.0.0"
+          },
+          wallet: {
+            visible: true,
+            customStyle: {
+              supportChains: [PolygonMumbai]
+            }
+          }
+        }}
+      >
       <WalletContextProvider>
         <SetContractContextProvider>
           {/* Progress bar when navigating between pages */}
@@ -59,6 +79,7 @@ They are the stepping stone in the formation of Zuraverse." />
           <Footer />
         </SetContractContextProvider>
       </WalletContextProvider>
+      </AuthCoreContextProvider>
     </ThirdwebProvider>
   );
 }

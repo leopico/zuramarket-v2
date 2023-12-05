@@ -12,7 +12,7 @@ import "../styles/globals.css";
 import "../styles/global.css";
 import Footer from "../components/Footer/Footer";
 import { WalletContextProvider } from "../context/WalletContext";
-import { SetContractContextProvider } from "../context/SetContractContext";
+import { UserContextProvider } from "../context/UserContext";
 import { AuthCoreContextProvider } from "@particle-network/auth-core-modal";
 import { PolygonMumbai } from "@particle-network/chains";
 import { AuthType } from "@particle-network/auth-core";
@@ -62,7 +62,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         }}
       >
       <WalletContextProvider>
-        <SetContractContextProvider>
+        <UserContextProvider>
           {/* Progress bar when navigating between pages */}
           <NextNProgress
             color="var(--color-tertiary)"
@@ -77,7 +77,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           {/* Render the actual component (page) */}
           <Component {...pageProps} />
           <Footer />
-        </SetContractContextProvider>
+        </UserContextProvider>
       </WalletContextProvider>
       </AuthCoreContextProvider>
     </ThirdwebProvider>

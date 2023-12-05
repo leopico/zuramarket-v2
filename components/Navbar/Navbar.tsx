@@ -1,8 +1,7 @@
-import { useAddress } from "@thirdweb-dev/react";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./Navbar.module.css";
-import Wallte from "./Wallte";
+import Wallet from "./Wallet";
 import { ClientOnly } from "../ClientOnly";
 
 
@@ -17,7 +16,6 @@ export function Navbar() {
     <section className="bg-[#191c1f] sticky top-0 z-30 shadow-sm ">
       <div className="container mx-auto px-4 sm:px-7 py-5">
         <nav className=" flex justify-end sm:justify-between items-center">
-
           <div className={`${styles.profileImage} hidden sm:block`}>
             <Link href="/" passHref>
               <div className="flex flex-col items-center text-white">
@@ -31,7 +29,7 @@ export function Navbar() {
             </Link>
           </div>
 
-          <div className="hidden sm:block">
+          <div className="hidden sm:block md:pl-28">
             <Link href="https://zuraverse.xyz/" target="_blink" className="">
               <div className={`${styles.profileImage} hidden sm:block`}>
                 <Image
@@ -43,8 +41,9 @@ export function Navbar() {
               </div>
             </Link>
           </div>
+
           <ClientOnly>
-            <Wallte />
+            <Wallet />
           </ClientOnly>
         </nav>
       </div>

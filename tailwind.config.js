@@ -12,6 +12,7 @@ module.exports = {
         "black-cus": "#030103",
         "white-cus": "#545254",
         "hover-cus": "#cf08c8",
+        "nav-cus": "#13131800",
       },
     },
   },

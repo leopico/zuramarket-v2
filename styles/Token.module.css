@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: row;
   gap: 32px;
-  margin-top: 128px;
+  margin-top: 5px;
 }
 
 .metadataContainer {
@@ -12,7 +12,6 @@
   -webkit-box-flex: 1;
   flex: 1 1 auto;
   vertical-align: inherit;
-  display: flex;
   max-width: 100%;
 }
 

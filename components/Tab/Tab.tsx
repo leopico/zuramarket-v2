@@ -6,7 +6,7 @@ const Tab = () => {
     return (
         <section className='container pl-8 pt-4 mb-5 pr-7'>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-5">
-                <Link href="/buy">
+                <Link href="/buyhouse">
                     <div className="bg-[#24252d] p-1 lg:p-2 rounded space-y-2  cursor-pointer relative">
                         <div className="relative w-full h-52 rounded overflow-hidden">
                             <Image

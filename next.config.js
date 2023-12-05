@@ -11,6 +11,11 @@ const nextConfig = {
       }
     }
     return config
+  },
+  images: {
+    domains: [
+      "bafybeieupfzol44kx3ruwdnvrisbqp6putm45rcdjxaknh6ixbmhehierq.ipfs.nftstorage.link"
+    ]
   }
 };
 

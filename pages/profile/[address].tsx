@@ -8,7 +8,6 @@ import {
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import Container from "../../components/Container/Container";
-import ListingWrapper from "../../components/ListingWrapper/ListingWrapper";
 import NFTGrid from "../../components/NFT/NFTGrid";
 import Skeleton from "../../components/Skeleton/Skeleton";
 import {
@@ -117,11 +116,7 @@ export default function ProfilePage() {
         className={`${tab === "nfts" ? styles.activeTabContent : styles.tabContent
           }`}
       >
-        <NFTGrid
-          data={ownedNfts}
-          isLoading={loadingOwnedNfts}
-          emptyText="Looks like you don't have any NFTs from this collection. Head to the buy page to buy some!"
-        />
+        <h1>listing nft</h1>
       </div>
 
       <div
@@ -134,7 +129,7 @@ export default function ProfilePage() {
           <p>Nothing for sale yet! Head to the sell tab to list an NFT.</p>
         ) : (
           directListings?.map((listing) => (
-            <ListingWrapper listing={listing} key={listing.id} />
+            <p key={listing.id}>listing wrapper</p>
           ))
         )}
       </div>
@@ -149,7 +144,7 @@ export default function ProfilePage() {
           <p>Nothing for sale yet! Head to the sell tab to list an NFT.</p>
         ) : (
           auctionListings?.map((listing) => (
-            <ListingWrapper listing={listing} key={listing.id} />
+            <p key={listing.id}>listing wrapper</p>
           ))
         )}
       </div>

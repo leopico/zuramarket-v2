@@ -19,7 +19,7 @@ export default function TokenPage() {
   const [currentHash, setCurrentHash] = useState<HashMetadata | null>(null);
   // console.log(currentHouse);
 
-  const { handleHashMint, hashloader, handleHashWLMint, hashWLLoader, handleSimpleMint, simpleMintLoader } = useContext(UserContext);
+  const { handleHashMint, hashloader, handleHashDisMint, hashWLLoader } = useContext(UserContext);
   const { login, address, loader } = useContext(WalletConnectContext);
 
   useEffect(() => {
@@ -113,21 +113,11 @@ export default function TokenPage() {
                           </div>
                           <div className="pt-3">
                             <button
-                              onClick={() => handleHashWLMint(tidNum)}
+                              onClick={() => handleHashDisMint(tidNum)}
                               className="bg-slate-300 rounded-lg text-center text-slate-700 w-full px-2 py-3"
                             >
                               {
                                 hashWLLoader ? "loading" : "Whitelisted Mint"
-                              }
-                            </button>
-                          </div>
-                          <div className="pt-3">
-                            <button
-                              onClick={() => handleSimpleMint()}
-                              className="bg-slate-300 rounded-lg text-center text-slate-700 w-full px-2 py-3"
-                            >
-                              {
-                                simpleMintLoader ? "loading" : "Simple Mint"
                               }
                             </button>
                           </div>

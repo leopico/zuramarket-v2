@@ -35,9 +35,7 @@ export default function ProfilePage() {
 
         <h1 className={styles.profileName}>
           {router.query.address ? (
-            router.query.address.toString().substring(0, 4) +
-            "..." +
-            router.query.address.toString().substring(38, 42)
+            <small>{router.query.address}</small>
           ) : (
             <Skeleton width="320" />
           )}

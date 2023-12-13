@@ -20,7 +20,7 @@ export default function TokenPage() {
   const [currentHouse, setCurrentHouse] = useState<HouseMetadata | null>(null);
   // console.log(currentHouse);
 
-  const { handleMint, handleWLMint, handleSimpleMint, mintLoader, mintWLLoader,  simpleMintLoader } = useContext(UserContext);
+  const { handleMint, handleWLMint, mintLoader, mintWLLoader } = useContext(UserContext);
   const { login, address, loader } = useContext(WalletConnectContext);
 
   useEffect(() => {
@@ -114,16 +114,6 @@ export default function TokenPage() {
                             >
                               {
                                 mintWLLoader ? "loading" : "Whitelisted Mint"
-                              }
-                            </button>
-                          </div>
-                          <div className="pt-3">
-                            <button
-                              onClick={() => handleSimpleMint()}
-                              className="bg-slate-300 rounded-lg text-center text-slate-700 w-full px-2 py-3"
-                            >
-                              {
-                                simpleMintLoader ? "loading" : "Simple Mint"
                               }
                             </button>
                           </div>

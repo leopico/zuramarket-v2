@@ -1,11 +1,8 @@
 import { createContext, useContext, useState } from "react";
 import PropTypes from "prop-types";
 
+import { HOUSE_CONTRACT_ADDRESS, HASH_CONTRACT_ADDRESS } from "../const/constant";
 
-import houseABI from "../const/blockchain/houseABI.json";
-import { HOUSE_CONTRACT_ADDRESS } from "../const/constant";
-import mintABI from "../const/blockchain/simpleMint.json";
-import { ethers } from "ethers";
 import { encodeFunctionData, parseAbi } from 'viem';
 import keccak256 from "keccak256";
 import { MerkleTree } from "merkletreejs"
@@ -14,32 +11,31 @@ import toast from "react-hot-toast";
 import toastStyle from "../util/toastConfig";
 import WalletConnectContext from "./WalletContext";
 
+import { ethers } from "ethers";
+
+
 const nftAddress = "0x795EF5Da7FfA14CBc42DB628F0a0d44FD36545Dd";
 
 
 interface MessageContextValue {
     handleMint: (tid: number) => void
     handleWLMint: (tid: number) => void
-    handleSimpleMint: () => void
     mintLoader: boolean
     mintWLLoader: boolean
-    simpleMintLoader: boolean
     handleHashMint: (tid: number) => void
     hashloader: boolean
-    handleHashWLMint: (tid: number) => void
+    handleHashDisMint: (tid: number) => void
     hashWLLoader: boolean
 }
 
 const UserContext = createContext<MessageContextValue>({
     handleMint: () => { },
     handleWLMint: () => { },
-    handleSimpleMint: () => { },
     mintLoader: false,
     mintWLLoader: false,
-    simpleMintLoader: false,
-    handleHashMint: () => {},
+    handleHashMint: () => { },
     hashloader: false,
-    handleHashWLMint: () => {},
+    handleHashDisMint: () => { },
     hashWLLoader: false
 });
 
@@ -54,32 +50,29 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
     const [hashloader, setHashLoader] = useState(false);
     const [hashWLLoader, setHashWLLoader] = useState(false);
 
-    const [simpleMintLoader, setSimpleMintLoader] = useState(false);
-
     const addresses = [
-        "0xaaC3A7B643915d17eAcc3DcFf8e1439fB4B1a3D2",
-        "0x72F8f5bDc6E8a92dF64e4B22fe7A8050f007386a"
+        "0x9BaC0A3CdF46F59e9624c23A6E9618eEf267FFC6",
     ]
 
 
     const handleMint = async (tid: number) => {
+        if (!signer) {
+            console.log("Provider or signer not available");
+            toast(`Please refresh and login again!`, {
+                icon: "❌",
+                style: toastStyle,
+                position: "bottom-center",
+            });
+            return;
+        }
         try {
-            if (!provider || !signer) {
-                console.log("Provider or signer not available");
-                toast(`logged out in successfully!`, {
-                    icon: "✅",
-                    style: toastStyle,
-                    position: "bottom-center",
-                });
-                return;
-            }
             setMintLoader(true);
             const contractABI = parseAbi([
                 'function mint(uint256 _id) external nonReentrant isAddress(msg.sender)'
             ]);
 
             const { hash }: any = await signer?.sendUserOperation({
-                target: nftAddress, // need to update
+                target: HOUSE_CONTRACT_ADDRESS, // need to update
                 data: encodeFunctionData({
                     abi: contractABI, //need to update
                     functionName: "mint",
@@ -106,18 +99,17 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
     };
 
     const handleWLMint = async (tid: number) => {
+        if (!signer) {
+            console.log("Please refresh and login again!");
+            toast(`logged out in successfully!`, {
+                icon: "❌",
+                style: toastStyle,
+                position: "bottom-center",
+            });
+            return;
+        }
         try {
-            if (!provider || !signer) {
-                console.log("Provider or signer not available");
-                toast(`logged out in successfully!`, {
-                    icon: "✅",
-                    style: toastStyle,
-                    position: "bottom-center",
-                });
-                return;
-            }
             setMintWLLoader(true);
-
             const leafNode = addresses.map((x) => keccak256(x));
             const tree = new MerkleTree(leafNode, keccak256, {
                 sortPairs: true,
@@ -132,7 +124,7 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
             ]);
 
             const { hash }: any = await signer?.sendUserOperation({
-                target: nftAddress, //need to update
+                target: HOUSE_CONTRACT_ADDRESS, //need to update
                 data: encodeFunctionData({
                     abi: contractABI, //need to update
                     functionName: "whitelistMint",
@@ -159,54 +151,91 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
     };
 
     const handleHashMint = async (tid: number) => {
-        alert("handleHashMint");
-    };
-
-    const handleHashWLMint = async (tid: number) => {
-        alert("handleHashWLMint");
-    };
-
-    const handleSimpleMint = async () => {
-        try {
-            if (!provider || !signer) {
-                console.log("Provider or signer not available");
-                toast(`logged out in successfully!`, {
-                    icon: "✅",
-                    style: toastStyle,
-                    position: "bottom-center",
-                });
-                return;
-            }
-            setSimpleMintLoader(true);
-            const contractABI = parseAbi([
-                'function safeMint(address to) public'
-            ]);
-
-            const { hash }: any = await signer?.sendUserOperation({
-                target: nftAddress,
-                data: encodeFunctionData({
-                    abi: contractABI,
-                    functionName: "safeMint",
-                    args: [address as `0x${string}`]
-                })
-            });
-            const response = await signer?.waitForUserOperationTransaction(hash);
-            console.log("mintResponse", response);
-            toast(`TxHash!: ${response}`, {
-                icon: "✅",
-                style: toastStyle,
-                position: "bottom-center",
-            });
-            setSimpleMintLoader(false);
-        } catch (error) {
-            setSimpleMintLoader(false);
-            console.error(error)
-            toast(`Error!: ${error}`, {
+        if (!signer) {
+            console.log("Provider or signer not available");
+            toast(`Please refresh and login again!`, {
                 icon: "❌",
                 style: toastStyle,
                 position: "bottom-center",
             });
-        }
+            return;
+        };
+        alert("handleHashMint");
+        // try {
+        //     setHashLoader(true);
+        //     const contractABI = parseAbi([
+        //         'function claim(uint256 _id) external payable'
+        //     ]);
+        //     const { hash }: any = await signer?.sendUserOperation({
+        //         target: HASH_CONTRACT_ADDRESS, //need to update
+        //         data: encodeFunctionData({
+        //             abi: contractABI, //need to update
+        //             functionName: "claim",
+        //             args: [BigInt(tid)],
+        //         }),
+        //         value: ethers.utils.parseEther("0.2").toBigInt()
+        //     });
+        //     const response = await signer?.waitForUserOperationTransaction(hash);
+        //     console.log("mintResponse", response);
+        //     toast(`TxHash! please check successful or not: ${response}`, {
+        //         icon: "✅",
+        //         style: toastStyle,
+        //         position: "bottom-center",
+        //     });
+        //     setHashLoader(false);
+        // } catch (error) {
+        //     setHashLoader(false);
+        //     console.error(error)
+        //     toast(`Error!: ${error}`, {
+        //         icon: "❌",
+        //         style: toastStyle,
+        //         position: "bottom-center",
+        //     });
+        // }
+    };
+
+    const handleHashDisMint = async (tid: number) => {
+        if (!signer) {
+            console.log("Provider or signer not available");
+            toast(`Please refresh and login again!`, {
+                icon: "❌",
+                style: toastStyle,
+                position: "bottom-center",
+            });
+            return;
+        };
+        alert('handleHashDisMint')
+        // try {
+        //     setHashWLLoader(true);
+        //     const contractABI = parseAbi([
+        //         'function claimWithDiscount(uint256 _id) external payable'
+        //     ]);
+        //     const { hash }: any = await signer?.sendUserOperation({
+        //         target: HASH_CONTRACT_ADDRESS, //need to update
+        //         data: encodeFunctionData({
+        //             abi: contractABI, //need to update
+        //             functionName: "claimWithDiscount",
+        //             args: [BigInt(tid)]
+        //         }),
+        //         value: ethers.utils.parseEther("0.1").toBigInt()
+        //     });
+        //     const response = await signer?.waitForUserOperationTransaction(hash);
+        //     console.log("mintResponse", response);
+        //     toast(`TxHash! please check successful or not: ${response}`, {
+        //         icon: "✅",
+        //         style: toastStyle,
+        //         position: "bottom-center",
+        //     });
+        //     setHashWLLoader(false);
+        // } catch (error) {
+        //     setHashWLLoader(false);
+        //     console.error(error)
+        //     toast(`Error!: ${error}`, {
+        //         icon: "❌",
+        //         style: toastStyle,
+        //         position: "bottom-center",
+        //     });
+        // }
     };
 
     return (
@@ -214,13 +243,11 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
             value={{
                 handleMint,
                 handleWLMint,
-                handleSimpleMint,
                 mintLoader,
                 mintWLLoader,
-                simpleMintLoader,
                 handleHashMint,
                 hashloader,
-                handleHashWLMint,
+                handleHashDisMint,
                 hashWLLoader
             }}
         >

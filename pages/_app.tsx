@@ -7,6 +7,7 @@ import "../styles/global.css";
 import Footer from "../components/Footer/Footer";
 import { WalletContextProvider } from "../context/WalletContext";
 import { UserContextProvider } from "../context/UserContext";
+import { AdminHouseContextProvider } from "../context/AdminHouseContext";
 
 function MyApp({ Component, pageProps }: AppProps) {
 
@@ -18,7 +19,8 @@ function MyApp({ Component, pageProps }: AppProps) {
         <meta name="description" content="H.A.C.K is the gateway to Zuraverse. H.A.C.K NFTs introduce Zuraverse to the Web3 audience.They are the stepping stone in the formation of Zuraverse." />
       </Head>
 
-        <WalletContextProvider>
+      <WalletContextProvider>
+        <AdminHouseContextProvider>
           <UserContextProvider>
             {/* Progress bar when navigating between pages */}
             <NextNProgress
@@ -35,7 +37,8 @@ function MyApp({ Component, pageProps }: AppProps) {
             <Component {...pageProps} />
             <Footer />
           </UserContextProvider>
-        </WalletContextProvider>
+        </AdminHouseContextProvider>
+      </WalletContextProvider>
     </>
   );
 }

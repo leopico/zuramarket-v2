@@ -4,12 +4,15 @@ import Link from "next/link";
 import { useContext } from "react";
 import { Toaster } from "react-hot-toast";
 import WalletConnectContext from "../../context/WalletContext";
+import { adminAddresses } from "../../const/constant";
 
 const Wallet = () => {
 
-    const { login, logout, loader, logoutLoader, addr, balance, signer, loadingInit, address } = useContext(WalletConnectContext);
+    const { 
+        login, logout, loader, logoutLoader, addr, web3authAddress, web3authBalance, web3authAddr, 
+        balance, signer, loadingInit, address } = useContext(WalletConnectContext);
     
-    const adminAddress = "0xaaC3A7B643915d17eAcc3DcFf8e1439fB4B1a3D2";
+        
 
     return (
         <>
@@ -19,10 +22,28 @@ const Wallet = () => {
                     signer && (
                         <div className="flex flex-col items-center justify-start bg-[#24252d] py-1 px-3 rounded-md border border-slate-800 shadow-lg">
                             <div className="text-sm font-semibold text-gray-300">
-                                {loader ? (<small>loding...</small>) : <small>{addr}</small>}
+                                {
+                                loader ? (<small>loding...</small>) : 
+                                <small>
+                                    {
+                                        adminAddresses.includes(web3authAddress) ? (<>{web3authAddr}</>) : (<>{addr}</>)
+                                    }
+                                </small>
+                                }
                             </div>
                             <div className="text-gray-300 text-xs font-bold">
-                                {loader ? (<small>loding...</small>) : <small>{balance ? (balance.slice(0,6)) : 0}</small>}
+                                {
+                                loader ? (<small>loding...</small>) : 
+                                <small>
+                                    {
+                                        adminAddresses.includes(web3authAddress) ? (
+                                            <>{web3authBalance ? (web3authBalance.slice(0,6)) : 0}</>
+                                        ) : (
+                                            <>{balance ? (balance.slice(0,6)) : 0}</>
+                                        )
+                                    } 
+                                </small>
+                                }
                                 <strong><small className=" tracking-tighter">MATIC</small></strong>
                             </div>
                         </div>
@@ -51,8 +72,8 @@ const Wallet = () => {
 
                 {
                     signer ? (
-                        address === adminAddress ? (
-                            <Link className={styles.link} href={`/admin/${address}`}>
+                        adminAddresses.includes(web3authAddress) ? (
+                            <Link className={styles.link} href={`/admin/${web3authAddress}`}>
                                 <Image
                                     className={styles.profileImage}
                                     src="/user-icon.png"

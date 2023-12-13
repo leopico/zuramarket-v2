@@ -1,19 +1,20 @@
 import { createContext, useContext, useState } from "react";
 import PropTypes from "prop-types";
 
-import { useEthereum, useAuthCore } from "@particle-network/auth-core-modal";
-import { PolygonMumbai } from "@particle-network/chains";
-import { AAWrapProvider, SmartAccount, SendTransactionMode } from "@particle-network/aa";
+
+import houseABI from "../const/blockchain/houseABI.json";
+import { HOUSE_CONTRACT_ADDRESS } from "../const/constant";
+import mintABI from "../const/blockchain/simpleMint.json";
 import { ethers } from "ethers";
+import { encodeFunctionData, parseAbi } from 'viem';
+import keccak256 from "keccak256";
+import { MerkleTree } from "merkletreejs"
 
 import toast from "react-hot-toast";
 import toastStyle from "../util/toastConfig";
-import { abi } from "../const/blockchain/houseABI.json";
-import { HOUSE_CONTRACT_ADDRESS } from "../const/contractAddresses";
 import WalletConnectContext from "./WalletContext";
-import simpleAbi from "../const/blockchain/simpleABI.json"
 
-const nftAddress = "0xb97a934761b902D3C1D59e241514dF75a715eBCd";
+const nftAddress = "0x795EF5Da7FfA14CBc42DB628F0a0d44FD36545Dd";
 
 
 interface MessageContextValue {
@@ -23,6 +24,10 @@ interface MessageContextValue {
     mintLoader: boolean
     mintWLLoader: boolean
     simpleMintLoader: boolean
+    handleHashMint: (tid: number) => void
+    hashloader: boolean
+    handleHashWLMint: (tid: number) => void
+    hashWLLoader: boolean
 }
 
 const UserContext = createContext<MessageContextValue>({
@@ -31,66 +36,68 @@ const UserContext = createContext<MessageContextValue>({
     handleSimpleMint: () => { },
     mintLoader: false,
     mintWLLoader: false,
-    simpleMintLoader: false
+    simpleMintLoader: false,
+    handleHashMint: () => {},
+    hashloader: false,
+    handleHashWLMint: () => {},
+    hashWLLoader: false
 });
 
 
 export const UserContextProvider = ({ children }: { children: React.ReactNode }) => {
-    const { provider } = useEthereum();
-    const { userInfo } = useAuthCore();
 
-    const { address } = useContext(WalletConnectContext);
+    const { signer, address, provider } = useContext(WalletConnectContext);
 
     const [mintLoader, setMintLoader] = useState(false);
     const [mintWLLoader, setMintWLLoader] = useState(false);
+
+    const [hashloader, setHashLoader] = useState(false);
+    const [hashWLLoader, setHashWLLoader] = useState(false);
+
     const [simpleMintLoader, setSimpleMintLoader] = useState(false);
 
-    const smartAccount = new SmartAccount(provider, {
-        projectId: process.env.NEXT_PUBLIC_PARTICLE_PROJECTID as string,
-        clientKey: process.env.NEXT_PUBLIC_PARTICLE_CLIENTKEY as string,
-        appId: process.env.NEXT_PUBLIC_PARTICLE_APPID as string,
-        aaOptions: {
-            accountContracts: {
-                SIMPLE: [
-                    {
-                        version: '1.0.0',
-                        chainIds: [PolygonMumbai.id]
-                    }
-                ]
-            }
-        }
-    });
-
-    const gaslessProvider = new ethers.providers.Web3Provider(new AAWrapProvider(smartAccount, SendTransactionMode.Gasless) || null, "any");
+    const addresses = [
+        "0xaaC3A7B643915d17eAcc3DcFf8e1439fB4B1a3D2",
+        "0x72F8f5bDc6E8a92dF64e4B22fe7A8050f007386a"
+    ]
 
 
     const handleMint = async (tid: number) => {
-        if (userInfo) {
-            try {
-                setMintLoader(true)
-                const signer = gaslessProvider.getSigner();
-                const contract = new ethers.Contract(HOUSE_CONTRACT_ADDRESS, abi, signer);
-                console.log(contract);
-                const tx = await contract.mint(tid, { gasLimit: 500000 });
-                const txreceipt = await tx.wait();
-                console.log(txreceipt);
-                toast(`TxHash!: ${txreceipt.transactionHash}`, {
+        try {
+            if (!provider || !signer) {
+                console.log("Provider or signer not available");
+                toast(`logged out in successfully!`, {
                     icon: "✅",
                     style: toastStyle,
                     position: "bottom-center",
                 });
-                setMintLoader(false);
-            } catch (error: any) {
-                setMintLoader(false);
-                console.log(error);
-                toast(`Error!: ${error.message}`, {
-                    icon: "❌",
-                    style: toastStyle,
-                    position: "bottom-center",
-                });
+                return;
             }
-        } else {
-            toast(`Error!: you don't have wallet address`, {
+            setMintLoader(true);
+            const contractABI = parseAbi([
+                'function mint(uint256 _id) external nonReentrant isAddress(msg.sender)'
+            ]);
+
+            const { hash }: any = await signer?.sendUserOperation({
+                target: nftAddress, // need to update
+                data: encodeFunctionData({
+                    abi: contractABI, //need to update
+                    functionName: "mint",
+                    args: [tid]
+                })
+            });
+            const response = await signer?.waitForUserOperationTransaction(hash);
+            console.log("mintResponse", response);
+            toast(`TxHash!: ${response}`, {
+                icon: "✅",
+                style: toastStyle,
+                position: "bottom-center",
+            });
+            setMintLoader(false);
+        } catch (error) {
+            setMintLoader(false);
+            console.error(error)
+            toast(`Error!: ${error}`, {
                 icon: "❌",
                 style: toastStyle,
                 position: "bottom-center",
@@ -99,32 +106,51 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
     };
 
     const handleWLMint = async (tid: number) => {
-        if (userInfo) {
-            try {
-                setMintWLLoader(true)
-                const signer = gaslessProvider.getSigner();
-                const contract = new ethers.Contract(HOUSE_CONTRACT_ADDRESS, abi, signer);
-                console.log(contract);
-                const tx = await contract.whitelistMint(tid, { gasLimit: 500000 });
-                const txreceipt = await tx.wait();
-                console.log(txreceipt);
-                toast(`TxHash!: ${txreceipt.transactionHash}`, {
+        try {
+            if (!provider || !signer) {
+                console.log("Provider or signer not available");
+                toast(`logged out in successfully!`, {
                     icon: "✅",
                     style: toastStyle,
                     position: "bottom-center",
                 });
-                setMintWLLoader(false);
-            } catch (error: any) {
-                setMintWLLoader(false);
-                console.log(error);
-                toast(`Error!: ${error.message}`, {
-                    icon: "❌",
-                    style: toastStyle,
-                    position: "bottom-center",
-                });
+                return;
             }
-        } else {
-            toast(`Error!: you don't have wallet address`, {
+            setMintWLLoader(true);
+
+            const leafNode = addresses.map((x) => keccak256(x));
+            const tree = new MerkleTree(leafNode, keccak256, {
+                sortPairs: true,
+            });
+            const buf2hex = (x: any) => "0x" + x.toString("hex");
+            // console.log(buf2hex(tree.getRoot())); //for getting hash root
+            const leaf = keccak256(address); //hashing for user account
+            const proof = tree.getProof(leaf).map((x) => buf2hex(x.data));
+
+            const contractABI = parseAbi([
+                'function whitelistMint(uint256 _id, bytes32[] memory proof) external nonReentrant isAddress(msg.sender)'
+            ]);
+
+            const { hash }: any = await signer?.sendUserOperation({
+                target: nftAddress, //need to update
+                data: encodeFunctionData({
+                    abi: contractABI, //need to update
+                    functionName: "whitelistMint",
+                    args: [tid, proof]
+                })
+            });
+            const response = await signer?.waitForUserOperationTransaction(hash);
+            console.log("mintResponse", response);
+            toast(`TxHash!: ${response}`, {
+                icon: "✅",
+                style: toastStyle,
+                position: "bottom-center",
+            });
+            setMintWLLoader(false);
+        } catch (error) {
+            setMintWLLoader(false);
+            console.error(error)
+            toast(`Error!: ${error}`, {
                 icon: "❌",
                 style: toastStyle,
                 position: "bottom-center",
@@ -132,36 +158,71 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
         }
     };
 
+    const handleHashMint = async (tid: number) => {
+        alert("handleHashMint");
+    };
+
+    const handleHashWLMint = async (tid: number) => {
+        alert("handleHashWLMint");
+    };
+
     const handleSimpleMint = async () => {
         try {
+            if (!provider || !signer) {
+                console.log("Provider or signer not available");
+                toast(`logged out in successfully!`, {
+                    icon: "✅",
+                    style: toastStyle,
+                    position: "bottom-center",
+                });
+                return;
+            }
             setSimpleMintLoader(true);
-            const signer = gaslessProvider.getSigner();
-            const contract = new ethers.Contract(nftAddress, simpleAbi, signer);
-            console.log(contract);
-            const tx = await contract.safeMint(address);
-            const txreceipt = await tx.wait();
-            // console.log(txreceipt);
-            toast(`TxHash!: ${txreceipt.transactionHash}`, {
+            const contractABI = parseAbi([
+                'function safeMint(address to) public'
+            ]);
+
+            const { hash }: any = await signer?.sendUserOperation({
+                target: nftAddress,
+                data: encodeFunctionData({
+                    abi: contractABI,
+                    functionName: "safeMint",
+                    args: [address as `0x${string}`]
+                })
+            });
+            const response = await signer?.waitForUserOperationTransaction(hash);
+            console.log("mintResponse", response);
+            toast(`TxHash!: ${response}`, {
                 icon: "✅",
                 style: toastStyle,
                 position: "bottom-center",
             });
-            setSimpleMintLoader(false)
+            setSimpleMintLoader(false);
         } catch (error) {
             setSimpleMintLoader(false);
-            console.log(error);
+            console.error(error)
             toast(`Error!: ${error}`, {
                 icon: "❌",
                 style: toastStyle,
                 position: "bottom-center",
             });
         }
-    }
-
+    };
 
     return (
         <UserContext.Provider
-            value={{ handleMint, mintLoader, handleWLMint, mintWLLoader, handleSimpleMint, simpleMintLoader }}
+            value={{
+                handleMint,
+                handleWLMint,
+                handleSimpleMint,
+                mintLoader,
+                mintWLLoader,
+                simpleMintLoader,
+                handleHashMint,
+                hashloader,
+                handleHashWLMint,
+                hashWLLoader
+            }}
         >
             {children}
         </UserContext.Provider>

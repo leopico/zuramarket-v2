@@ -13,7 +13,7 @@ export type HouseMetadata = {
   Description: string;
 };
 
-const houseMetadata: HouseMetadata[]  = [
+const houseMetadata: HouseMetadata[] = [
   {
     TID: 0,
     Name: "Datura",
@@ -65,8 +65,8 @@ const houseMetadata: HouseMetadata[]  = [
     IPFS: "https://bafybeieupfzol44kx3ruwdnvrisbqp6putm45rcdjxaknh6ixbmhehierq.ipfs.nftstorage.link/5.jpg",
     Description: "An energetic haven for thrill-seekers who thrive on challenges and embrace a dynamic, fast-paced lifestyle in a lively space. Kaivics are the Adventurers of the universe."
   }
-  
-  
+
+
 ];
 
 export default houseMetadata;

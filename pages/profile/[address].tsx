@@ -1,22 +1,9 @@
-import {
-  useAddress,
-  useContract,
-  useOwnedNFTs,
-  useValidDirectListings,
-  useValidEnglishAuctions,
-} from "@thirdweb-dev/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import Container from "../../components/Container/Container";
-import NFTGrid from "../../components/NFT/NFTGrid";
 import Skeleton from "../../components/Skeleton/Skeleton";
-import {
-  MARKETPLACE_ADDRESS,
-  NFT_COLLECTION_ADDRESS,
-} from "../../const/contractAddresses";
 import styles from "../../styles/Profile.module.css";
 import randomColor from "../../util/randomColor";
-import Link from "next/link";
 
 const [randomColor1, randomColor2, randomColor3, randomColor4] = [
   randomColor(),
@@ -27,32 +14,8 @@ const [randomColor1, randomColor2, randomColor3, randomColor4] = [
 
 export default function ProfilePage() {
   const router = useRouter();
-  const address = useAddress();
-  const adminAddress = process.env.NEXT_PUBLIC_ADMINADDRESS
   const [tab, setTab] = useState<"nfts" | "listings" | "auctions">("nfts");
-
-  const { contract: nftCollection } = useContract(NFT_COLLECTION_ADDRESS);
-
-  const { contract: marketplace } = useContract(
-    MARKETPLACE_ADDRESS,
-    "marketplace-v3"
-  );
-
-  const { data: ownedNfts, isLoading: loadingOwnedNfts } = useOwnedNFTs(
-    nftCollection,
-    router.query.address as string
-  );
-
-  const { data: directListings, isLoading: loadingDirects } =
-    useValidDirectListings(marketplace, {
-      seller: router.query.address as string,
-    });
-
-  const { data: auctionListings, isLoading: loadingAuctions } =
-    useValidEnglishAuctions(marketplace, {
-      seller: router.query.address as string,
-    });
-
+  
   return (
     <Container maxWidth="lg">
       <div className={styles.profileHeader}>
@@ -62,12 +25,14 @@ export default function ProfilePage() {
             background: `linear-gradient(90deg, ${randomColor1}, ${randomColor2})`,
           }}
         />
+
         <div
           className={styles.profilePicture}
           style={{
             background: `linear-gradient(90deg, ${randomColor3}, ${randomColor4})`,
           }}
         />
+
         <h1 className={styles.profileName}>
           {router.query.address ? (
             router.query.address.toString().substring(0, 4) +
@@ -77,39 +42,18 @@ export default function ProfilePage() {
             <Skeleton width="320" />
           )}
         </h1>
+
       </div>
 
       <div className={styles.tabs}>
         <h3
           className={`${styles.tab} 
-        ${tab === "nfts" ? styles.activeTab : ""}`}
+          ${tab === "nfts" ? styles.activeTab : ""}`} //for dynamic routes
           onClick={() => setTab("nfts")}
         >
           NFTs
         </h3>
 
-        {
-          address === adminAddress && (
-            <Link href="/sell">
-              <h3 className={styles.tab}>Sell House</h3>
-            </Link>
-          )
-        }
-
-        {/* <h3
-          className={`${styles.tab} 
-        ${tab === "listings" ? styles.activeTab : ""}`}
-          onClick={() => setTab("listings")}
-        >
-          Listings
-        </h3>
-        <h3
-          className={`${styles.tab}
-        ${tab === "auctions" ? styles.activeTab : ""}`}
-          onClick={() => setTab("auctions")}
-        >
-          Auctions
-        </h3> */}
       </div>
 
       <div
@@ -123,31 +67,25 @@ export default function ProfilePage() {
         className={`${tab === "listings" ? styles.activeTabContent : styles.tabContent
           }`}
       >
-        {loadingDirects ? (
+        {false ? (
           <p>Loading...</p>
-        ) : directListings && directListings.length === 0 ? (
-          <p>Nothing for sale yet! Head to the sell tab to list an NFT.</p>
         ) : (
-          directListings?.map((listing) => (
-            <p key={listing.id}>listing wrapper</p>
-          ))
+          <p>Nothing for sale yet! Head to the sell tab to list an NFT.</p>
         )}
+
       </div>
 
       <div
         className={`${tab === "auctions" ? styles.activeTabContent : styles.tabContent
           }`}
       >
-        {loadingAuctions ? (
+        {false ? (
           <p>Loading...</p>
-        ) : auctionListings && auctionListings.length === 0 ? (
-          <p>Nothing for sale yet! Head to the sell tab to list an NFT.</p>
         ) : (
-          auctionListings?.map((listing) => (
-            <p key={listing.id}>listing wrapper</p>
-          ))
+          <p>Nothing for sale yet! Head to the sell tab to list an NFT.</p>
         )}
       </div>
+
     </Container>
   );
 }

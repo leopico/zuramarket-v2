@@ -1,12 +1,12 @@
 import React from "react";
 import Container from "../components/Container/Container";
-import NFTGrid from "../components/HouseNFT/NFTGrid";
+import NFTGrid from "../components/HashNFT/NFTGrid";
 import Image from "next/image";
-import houseMetadata, { HouseMetadata } from "../util/houseMetadata";
+import hashMetadata, { HashMetadata } from "../util/hashMetadata";
 
 export default function Buy() {
 
-  const data: HouseMetadata[] = houseMetadata;
+  const data: HashMetadata[] = hashMetadata;
 
   return (
     <>
@@ -14,7 +14,7 @@ export default function Buy() {
         <Image
           alt="banner"
           className="object-cover"
-          src="/images/Zura_HQ.jpg"
+          src="/images/HASH.jpg"
           width={2000}
           height={1000}
         />

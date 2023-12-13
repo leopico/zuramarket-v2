@@ -12,9 +12,11 @@ const nextConfig = {
     }
     return config
   },
+  transpilePackages: ["@zerodev", "@web3", "@web3auth"],
   images: {
     domains: [
-      "bafybeieupfzol44kx3ruwdnvrisbqp6putm45rcdjxaknh6ixbmhehierq.ipfs.nftstorage.link"
+      "bafybeieupfzol44kx3ruwdnvrisbqp6putm45rcdjxaknh6ixbmhehierq.ipfs.nftstorage.link",
+      "bafybeid6tht7ecegrnicq5b46l3vze56bccarofiwn2kdpjphzqaunj474.ipfs.nftstorage.link"
     ]
   }
 };

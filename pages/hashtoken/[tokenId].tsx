@@ -4,10 +4,9 @@ import styles from "../../styles/Token.module.css";
 import randomColor from "../../util/randomColor";
 import { Toaster } from "react-hot-toast";
 import UserContext from "../../context/UserContext";
-import Image from "next/image";
 import { useRouter } from "next/router";
-import houseMetadata, { HouseMetadata } from "../../util/houseMetadata";
 import WalletConnectContext from "../../context/WalletContext";
+import hashMetadata, { HashMetadata } from "../../util/hashMetadata";
 
 
 const [randomColor1, randomColor2] = [randomColor(), randomColor()];
@@ -17,15 +16,15 @@ export default function TokenPage() {
   const tid = router.query.tokenId as string;
   const tidNum = parseInt(tid);
 
-  const [currentHouse, setCurrentHouse] = useState<HouseMetadata | null>(null);
+  const [currentHash, setCurrentHash] = useState<HashMetadata | null>(null);
   // console.log(currentHouse);
 
-  const { handleMint, handleWLMint, handleSimpleMint, mintLoader, mintWLLoader,  simpleMintLoader } = useContext(UserContext);
+  const { handleHashMint, hashloader, handleHashWLMint, hashWLLoader, handleSimpleMint, simpleMintLoader } = useContext(UserContext);
   const { login, address, loader } = useContext(WalletConnectContext);
 
   useEffect(() => {
-    const matchingHouse: any = houseMetadata.find((house) => house.TID.toString() === tid);
-    setCurrentHouse(matchingHouse || null)
+    const matchingHash = hashMetadata.find((hash) => hash.TID.toString() === tid);
+    setCurrentHash(matchingHash || null)
   }, [tid]);
 
   return (
@@ -33,29 +32,34 @@ export default function TokenPage() {
       <Toaster position="bottom-center" reverseOrder={false} />
       <Container maxWidth="lg">
         {
-          currentHouse ? (
+          currentHash ? (
             <div className={styles.container}>
               <div className={styles.metadataContainer}>
-                <Image
-                  src={currentHouse.IPFS}
-                  alt="house-nft"
+                <video
+                  src={currentHash.IPFS}
+                  controls
                   className={styles.image}
-                  width={100}
-                  height={200}
-                  layout="responsive"
-                  placeholder="empty"
+                  width={400}
+                  height={300}
                 />
                 <div className={styles.descriptionContainer}>
                   <h3 className={styles.descriptionTitle}>Description</h3>
                   <p className={styles.description}>
-                    {currentHouse.Description}
+                    {currentHash.Description}
                   </p>
 
                   <h3 className={styles.descriptionTitle}>Traits</h3>
                   <div className={styles.traitsContainer}>
                     <div className={styles.traitContainer}>
-                      <p className={styles.traitName}>{currentHouse.Attributes.trait_type}</p>
-                      <p className={styles.traitValue}>{currentHouse.Attributes.value}</p>
+                      {
+                        currentHash.Attributes.map((attr) => (
+                          <div className="" key={attr.trait_type}>
+                            <p className={styles.traitName}>{attr.trait_type}</p>
+                            <p className={styles.traitValue}>{attr.value}</p>
+                          </div>
+                        ))
+                      }
+
                     </div>
                   </div>
                 </div>
@@ -63,8 +67,8 @@ export default function TokenPage() {
 
               {/* left */}
               <div className={styles.listingContainer}>
-                <h1 className={styles.title}>{currentHouse.Name}</h1>
-                <p className={styles.collectionName}>Token ID #{currentHouse.TID}</p>
+                <h1 className={styles.title}>{currentHash.Name}</h1>
+                <p className={styles.collectionName}>Token ID #{currentHash.TID}</p>
 
                 <div
                   className={styles.nftOwnerContainer}
@@ -99,21 +103,21 @@ export default function TokenPage() {
                         <>
                           <div className="pt-3">
                             <button
-                              onClick={() => handleMint(tidNum)}
+                              onClick={() => handleHashMint(tidNum)}
                               className="bg-slate-300 rounded-lg text-center text-slate-700 w-full px-2 py-3"
                             >
                               {
-                                mintLoader ? "loading" : "Public Mint"
+                                hashloader ? "loading" : "Public Mint"
                               }
                             </button>
                           </div>
                           <div className="pt-3">
                             <button
-                              onClick={() => handleWLMint(tidNum)}
+                              onClick={() => handleHashWLMint(tidNum)}
                               className="bg-slate-300 rounded-lg text-center text-slate-700 w-full px-2 py-3"
                             >
                               {
-                                mintWLLoader ? "loading" : "Whitelisted Mint"
+                                hashWLLoader ? "loading" : "Whitelisted Mint"
                               }
                             </button>
                           </div>
@@ -134,7 +138,7 @@ export default function TokenPage() {
                             onClick={login}
                             className="bg-slate-300 rounded-lg text-center text-slate-700 w-full px-2 py-3"
                           >
-                            { loader ? "loading..." : "Sign In"}
+                            {loader ? "loading..." : "Sign In"}
                           </button>
                         </div>
                       )

@@ -31,6 +31,8 @@ const Tab = () => {
                         <span className="text-sm text-[#8454d8]">Zuraverse</span>
                     </div>
                 </Link>
+                
+                <Link href="/buyhash">
                 <div className="bg-[#24252d] p-1 lg:p-2 rounded space-y-2  cursor-pointer relative group">
                     <div className="relative w-full h-52 rounded overflow-hidden">
                         <Image
@@ -55,6 +57,8 @@ const Tab = () => {
                     </div>
                     <span className="text-sm text-[#8454d8]">Zuraverse</span>
                 </div>
+                </Link>
+
                 <div className="bg-[#24252d] p-1 lg:p-2 rounded space-y-2 cursor-pointer relative group">
                     <div className="relative w-full h-52 rounded overflow-hidden">
                         <Image

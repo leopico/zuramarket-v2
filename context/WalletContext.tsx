@@ -1,40 +1,53 @@
 import { createContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { useEthereum, useConnect, useAuthCore } from "@particle-network/auth-core-modal";
-import { PolygonMumbai } from "@particle-network/chains";
-import { AAWrapProvider, SmartAccount, SendTransactionMode } from "@particle-network/aa";
+
+import { ECDSAProvider, getRPCProviderOwner } from '@zerodev/sdk'
+import { Web3Auth } from "@web3auth/modal"
+import { CHAIN_NAMESPACES, IProvider } from '@web3auth/base'
+
 import { ethers } from "ethers";
 import toast from "react-hot-toast";
 import toastStyle from "../util/toastConfig";
 
-
 interface MessageContextValue {
-  login: (authType: any) => void
+  login: () => void
   logout: () => void
-  balance: string
   loader: boolean
-  addr: string
+  logoutLoader: boolean
   address: string
+  addr: string
+  balance: string
+  signer: ECDSAProvider | null
+  loadingInit: boolean,
+  provider: IProvider | null
 }
 
 const WalletConnectContext = createContext<MessageContextValue>({
   login: () => { },
   logout: () => { },
-  balance: "",
   loader: false,
+  logoutLoader: false,
+  address: "",
   addr: "",
-  address: ""
+  balance: "",
+  signer: null,
+  loadingInit: false,
+  provider: null
 });
 
 
 export const WalletContextProvider = ({ children }: { children: React.ReactNode }) => {
-  const { provider } = useEthereum();
-  const { connect, disconnect } = useConnect();
-  const { userInfo } = useAuthCore();
 
-  const [balance, setBalance] = useState("");
+  const [web3auth, setWeb3Auth] = useState<Web3Auth | null>(null);
+  const [signer, setSigner] = useState<ECDSAProvider | null>(null);
+  const [loadingInit, setLoadingInit] = useState(true);
+  const [provider, setProvider] = useState<IProvider | null>(null);
+  const [address, setAddress] = useState<string>("");
   const [loader, setLoader] = useState(false);
-  const [address, setAddress] = useState("");
+  const [logoutLoader, setLogoutLoader] = useState(false);
+  const [balance, setBalance] = useState<string>("");
+  // console.log(address);
+  
 
   let addr = "";
 
@@ -45,71 +58,170 @@ export const WalletContextProvider = ({ children }: { children: React.ReactNode 
     addr = firstCharOfAddress + "..." + secondCharOfAddress;
   };
 
-  const smartAccount = new SmartAccount(provider, {
-    projectId: process.env.NEXT_PUBLIC_PARTICLE_PROJECTID as string,
-    clientKey: process.env.NEXT_PUBLIC_PARTICLE_CLIENTKEY as string,
-    appId: process.env.NEXT_PUBLIC_PARTICLE_APPID as string,
-    aaOptions: {
-      accountContracts: {
-        SIMPLE: [
-          {
-            version: '1.0.0',
-            chainIds: [PolygonMumbai.id]
-          }
-        ]
-      }
-    }
-  });
-
-  const gaslessProvider = new ethers.providers.Web3Provider(new AAWrapProvider(smartAccount, SendTransactionMode.Gasless) || null, "any")
-
   useEffect(() => {
-    if (userInfo) {
-      fetchBalance();
-    };
-  }, [userInfo]);
-
-  const fetchBalance = async () => {
-    const address = await smartAccount.getAddress();
-    setAddress(address);
-    const balanceResponse = await gaslessProvider.getBalance(address);
-    setBalance(ethers.utils.formatEther(balanceResponse));
-  };
-
-  const login = async (authType: any) => {
-    try {
-      if (!userInfo) {
-        setLoader(true);
-        await connect({
-          socialType: authType,
-          chain: PolygonMumbai
+    const init = async () => {
+      try {
+        const auth = new Web3Auth({
+          clientId: "BKSVKRjxiK3OYqrH94cjJKPpXwQ0DHBc8IBiDK2iUpouHpvdnObI3ngbs1GQzI7gWKFtJ9xnai0mRvJ5ceT-xLE",
+          chainConfig: {
+            chainNamespace: CHAIN_NAMESPACES.EIP155,
+            chainId: "0x13881",
+            rpcTarget: "https://rpc.ankr.com/polygon_mumbai/0c93d6a66d3380a8c125a7e1ce13378eaf03bfa0aa7a8688da1caa10f415dd70"
+          },
+          web3AuthNetwork: "sapphire_devnet"
         });
-        toast(`logged in successfully!`, {
-          icon: "✅",
+        await auth.initModal();
+        setWeb3Auth(auth);
+        if (signer) {
+          setSigner(signer);
+        }
+      } catch (error) {
+        console.error(error);
+        toast(`Please refresh and login again`, {
+          icon: "❌",
+          style: toastStyle,
+          position: "bottom-center",
+        });
+      } finally {
+        setLoadingInit(false); //check provider to get surely
+      }
+    };
+    init();
+  }, [signer])
+
+  const login = async () => {
+    try {
+      if (!web3auth) {
+        console.error("Web3Auth not initialized yet");
+        toast(`Please refresh and login again`, {
+          icon: "❌",
+          style: toastStyle,
+          position: "bottom-center",
+        });
+        return;
+      }
+      setLoader(true);
+      const web3authProvider = await web3auth.connect();
+      if (!web3authProvider) {
+        console.error("Web3Auth provider not available");
+        toast(`Please refresh and login again`, {
+          icon: "❌",
           style: toastStyle,
           position: "bottom-center",
         });
         setLoader(false);
+        return;
+      }
+      setProvider(web3authProvider);
+      const signer = await ECDSAProvider.init({
+        projectId: "819e434d-fb8f-41d0-bf5c-25da54c66894",
+        owner: getRPCProviderOwner(web3authProvider),
+        opts: {
+          paymasterConfig: {
+            policy: "VERIFYING_PAYMASTER",
+          }
+        }
+      });
+
+      if (!signer) {
+        console.error("Unable to initialize ECDSAProvider");
+        toast(`Please refresh and login again`, {
+          icon: "❌",
+          style: toastStyle,
+          position: "bottom-center",
+        });
+        setLoader(false);
+        return;
       };
+      setSigner(signer);
+
+      toast(`logged in successfully!`, {
+        icon: "✅",
+        style: toastStyle,
+        position: "bottom-center",
+      });
+      
+      setLoader(false);
     } catch (error) {
+      setLoader(false);
+      console.error("Login error", error);
       toast(`Error!: ${error}`, {
         icon: "❌",
         style: toastStyle,
         position: "bottom-center",
       });
-      console.log(error);
     }
   };
 
+  
+
   const logout = async () => {
-    if (userInfo) {
-      await disconnect();
+    try {
+      if (!web3auth) {
+        console.log("web3auth not initialized yet");
+        return;
+      };
+      setLogoutLoader(true);
+      await web3auth.logout();
+      setSigner(null);
+      setProvider(null);
+      setWeb3Auth(null);
+      setLogoutLoader(false);
+      setAddress("");
+      setBalance("");
+      toast(`logged out successfully!`, {
+        icon: "✅",
+        style: toastStyle,
+        position: "bottom-center",
+      });
+    } catch (error) {
+      console.log("logout", error);
+      toast(`Please refresh and logout again`, {
+        icon: "❌",
+        style: toastStyle,
+        position: "bottom-center",
+      });
     }
   };
+
+  useEffect(() => {
+    const fetchBalance =async () => {
+      const zeroAddress = await signer?.getAddress();
+      if (!zeroAddress) {
+        console.error("Unable to retrieve address from signer");
+        toast(`Please refresh and login again`, {
+          icon: "❌",
+          style: toastStyle,
+          position: "bottom-center",
+        });
+        setLoader(false);
+        return;
+      };
+      setAddress(zeroAddress);
+
+      const ethersProvider = new ethers.providers.Web3Provider(provider as IProvider);
+      const zeroBalance = await ethersProvider.getBalance(zeroAddress);
+      const zeroBalanceInEther = ethers.utils.formatUnits(zeroBalance, "ether");
+      setBalance(zeroBalanceInEther);
+    }
+
+    fetchBalance();
+  },[provider, signer])
 
   return (
     <WalletConnectContext.Provider
-      value={{ login, balance, logout, loader, addr, address }}
+      value={{
+        login,
+        logout,
+        loader,
+        logoutLoader,
+        address,
+        addr,
+        balance,
+        signer,
+        loadingInit,
+        provider
+      }}
     >
       {children}
     </WalletConnectContext.Provider>

@@ -6,7 +6,7 @@ import WalletConnectContext from '../../context/WalletContext';
 
 const AdminPage = () => {
   const router = useRouter();
-  const address = router.query.address;
+  const web3authAddress = router.query.address;
   const [pmSupply, setPmSupply] = useState<number>(0);
   const [wlSupply, setWlSupply] = useState<number>(0);
   const [tokenURI, setTokenURI] = useState<string>("");
@@ -19,11 +19,14 @@ const AdminPage = () => {
     handleWlMinted, wlMintedLoader
   } = useContext(AdminHouseContext);
 
+  const { address } = useContext(WalletConnectContext);
+
   return (
     <Container maxWidth='lg'>
       <div className=''>
         <div className='container mx-auto max-w-md'>
-          <small className='text break-words'>Admin: <strong>{address}</strong></small><br />
+          <small className='text break-words'>auth-address: <strong>{web3authAddress}</strong></small><br />
+          <small className='text break-words'>zerodev-address: <strong>{address}</strong></small><br />
           <small className='text break-words text-lime-500'>ChainId: <strong>{chainId}</strong></small><br />
           <div className='flex flex-col items-start space-y-9 pt-3'>
             <span className=' underline underline-offset-8 text-center'>House NFT</span>

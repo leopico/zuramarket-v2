@@ -2,19 +2,15 @@ import { createContext, useContext, useState } from "react";
 import PropTypes from "prop-types";
 
 import { HOUSE_CONTRACT_ADDRESS, HASH_CONTRACT_ADDRESS } from "../const/constant";
+import { whitelistedAddress } from "../const/constant";
 
-import { encodeFunctionData, parseAbi } from 'viem';
 import keccak256 from "keccak256";
 import { MerkleTree } from "merkletreejs"
 
 import toast from "react-hot-toast";
 import toastStyle from "../util/toastConfig";
 import WalletConnectContext from "./WalletContext";
-
-import { ethers } from "ethers";
-
-
-const nftAddress = "0x795EF5Da7FfA14CBc42DB628F0a0d44FD36545Dd";
+import { BigNumber, ethers } from "ethers";
 
 
 interface MessageContextValue {
@@ -39,7 +35,6 @@ const UserContext = createContext<MessageContextValue>({
     hashWLLoader: false
 });
 
-
 export const UserContextProvider = ({ children }: { children: React.ReactNode }) => {
 
     const { signer, address, provider } = useContext(WalletConnectContext);
@@ -49,10 +44,6 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
 
     const [hashloader, setHashLoader] = useState(false);
     const [hashWLLoader, setHashWLLoader] = useState(false);
-
-    const addresses = [
-        "0x9BaC0A3CdF46F59e9624c23A6E9618eEf267FFC6",
-    ]
 
 
     const handleMint = async (tid: number) => {
@@ -65,20 +56,22 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
             });
             return;
         }
+        const abiArray = [
+            'function mint(uint256 _id) external',
+        ];
         try {
             setMintLoader(true);
-            const contractABI = parseAbi([
-                'function mint(uint256 _id) external nonReentrant isAddress(msg.sender)'
-            ]);
+            const parsedAbi = new ethers.utils.Interface(abiArray);
+            console.log('Parsed ABI:', parsedAbi);
+
+            const encodedData = parsedAbi.encodeFunctionData('mint', [BigNumber.from(tid)]);
+            console.log("data", encodedData);
 
             const { hash }: any = await signer?.sendUserOperation({
-                target: HOUSE_CONTRACT_ADDRESS, // need to update
-                data: encodeFunctionData({
-                    abi: contractABI, //need to update
-                    functionName: "mint",
-                    args: [tid]
-                })
+                target: HOUSE_CONTRACT_ADDRESS,
+                data: encodedData as `0x${string}`
             });
+            console.log("hash", hash);
             const response = await signer?.waitForUserOperationTransaction(hash);
             console.log("mintResponse", response);
             toast(`TxHash!: ${response}`, {
@@ -86,6 +79,7 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
                 style: toastStyle,
                 position: "bottom-center",
             });
+
             setMintLoader(false);
         } catch (error) {
             setMintLoader(false);
@@ -107,30 +101,35 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
                 position: "bottom-center",
             });
             return;
-        }
+        };
+        const abiArray = [
+            'function whitelistMint(uint256 _id, bytes32[] memory proof) external'
+        ]
         try {
             setMintWLLoader(true);
-            const leafNode = addresses.map((x) => keccak256(x));
+            const leafNode = whitelistedAddress.map((x) => keccak256(x));
+            console.log("leadNode", leafNode);
             const tree = new MerkleTree(leafNode, keccak256, {
                 sortPairs: true,
             });
             const buf2hex = (x: any) => "0x" + x.toString("hex");
-            // console.log(buf2hex(tree.getRoot())); //for getting hash root
+            console.log("hashroot", buf2hex(tree.getRoot())); //for getting hash root
             const leaf = keccak256(address); //hashing for user account
+            console.log("leaf", leaf);
             const proof = tree.getProof(leaf).map((x) => buf2hex(x.data));
+            console.log("proof", proof);
 
-            const contractABI = parseAbi([
-                'function whitelistMint(uint256 _id, bytes32[] memory proof) external nonReentrant isAddress(msg.sender)'
-            ]);
+            const parsedAbi = new ethers.utils.Interface(abiArray);
+            console.log('Parsed ABI:', parsedAbi);
+
+            const encodedData = parsedAbi.encodeFunctionData('whitelistMint', [BigNumber.from(tid), proof]);
+            console.log("data", encodedData);
 
             const { hash }: any = await signer?.sendUserOperation({
-                target: HOUSE_CONTRACT_ADDRESS, //need to update
-                data: encodeFunctionData({
-                    abi: contractABI, //need to update
-                    functionName: "whitelistMint",
-                    args: [tid, proof]
-                })
+                target: HOUSE_CONTRACT_ADDRESS,
+                data: encodedData as `0x${string}`
             });
+            console.log("hash", hash);
             const response = await signer?.waitForUserOperationTransaction(hash);
             console.log("mintResponse", response);
             toast(`TxHash!: ${response}`, {

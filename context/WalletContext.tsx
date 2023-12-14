@@ -81,11 +81,11 @@ export const WalletContextProvider = ({ children }: { children: React.ReactNode 
     const init = async () => {
       try {
         const auth = new Web3Auth({
-          clientId: "BKSVKRjxiK3OYqrH94cjJKPpXwQ0DHBc8IBiDK2iUpouHpvdnObI3ngbs1GQzI7gWKFtJ9xnai0mRvJ5ceT-xLE",
+          clientId: process.env.NEXT_PUBLIC_WE3AUTH_CLIENTID!,
           chainConfig: {
             chainNamespace: CHAIN_NAMESPACES.EIP155,
             chainId: "0xAA36A7",
-            rpcTarget: "https://rpc.ankr.com/eth_sepolia/0c93d6a66d3380a8c125a7e1ce13378eaf03bfa0aa7a8688da1caa10f415dd70"
+            rpcTarget: `https://rpc.ankr.com/eth_sepolia/${process.env.NEXT_PUBLIC_RPCTARGET}`
           },
           web3AuthNetwork: "sapphire_devnet"
         });
@@ -133,7 +133,7 @@ export const WalletContextProvider = ({ children }: { children: React.ReactNode 
       }
       setProvider(web3authProvider);
       const signer = await ECDSAProvider.init({
-        projectId: "819e434d-fb8f-41d0-bf5c-25da54c66894",
+        projectId: process.env.NEXT_PUBLIC_ZERODEV_PJID!,
         owner: getRPCProviderOwner(web3authProvider),
         opts: {
           paymasterConfig: {
@@ -203,7 +203,7 @@ export const WalletContextProvider = ({ children }: { children: React.ReactNode 
   };
 
   useEffect(() => {
-    const fetchBalance = async () => {
+    const fetchData = async () => {
       const zeroAddress = await signer?.getAddress();
       console.log("zeroAddress", zeroAddress);
       if (!zeroAddress) {
@@ -230,15 +230,16 @@ export const WalletContextProvider = ({ children }: { children: React.ReactNode 
 
       const web3authBalance = await ethersProvider.getBalance(web3authAddress);
       const web3authBalanceInEther = ethers.utils.formatUnits(web3authBalance, "ether");
-      // console.log("web3authBalance", web3authBalanceInEther)
+      console.log("web3authBalance", web3authBalanceInEther)
       setWeb3authBalance(web3authBalanceInEther);
 
       const zeroBalance = await ethersProvider.getBalance(zeroAddress);
       const zeroBalanceInEther = ethers.utils.formatUnits(zeroBalance, "ether");
+      console.log("zerobalance", zeroBalanceInEther)
       setBalance(zeroBalanceInEther);
     }
 
-    fetchBalance();
+    fetchData();
   }, [provider, signer])
 
   return (

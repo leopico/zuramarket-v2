@@ -44,7 +44,7 @@ const Wallet = () => {
                                     } 
                                 </small>
                                 }
-                                <strong><small className=" tracking-tighter">MATIC</small></strong>
+                                <strong><small className=" tracking-tighter">ETH</small></strong>
                             </div>
                         </div>
                     )

@@ -1,13 +1,15 @@
 import { createContext, useContext, useState } from "react";
 import PropTypes from "prop-types";
 
-import { abi } from "../const/blockchain/houseABI.json";
+import abi  from "../const/blockchain/houseABI.json";
 import { HOUSE_CONTRACT_ADDRESS } from "../const/constant";
 import WalletConnectContext from "./WalletContext";
 import toast from "react-hot-toast";
 import toastStyle from "../util/toastConfig";
 import { BigNumber, ethers } from "ethers";
 import { IProvider } from "@web3auth/base";
+
+import simpleAbi from "../const/blockchain/simpleMint.json"
 
 interface AdminHouseContextValue {
   handlePmMode: () => void
@@ -40,13 +42,13 @@ const AdminHouseContext = createContext<AdminHouseContextValue>({
   handlePMinted: () => {},
   pMintedLoader: false,
   handleWlMinted: () => {},
-  wlMintedLoader: false
+  wlMintedLoader: false,
 });
 
 
 export const AdminHouseContextProvider = ({ children }: { children: React.ReactNode }) => {
 
-  const { provider, web3authAddress} = useContext(WalletConnectContext);
+  const { provider, web3authAddress, web3authBalance} = useContext(WalletConnectContext);
   // console.log("provider", provider);
   // console.log("web3address", web3authAddress)
 
@@ -57,13 +59,14 @@ export const AdminHouseContextProvider = ({ children }: { children: React.ReactN
   const [tokenLoader, setTokenLoader] = useState(false);
   const [pMintedLoader, setPMintedLoader] = useState(false);
   const [wlMintedLoader, setWlMintedLoader] = useState(false);
+  // const [simpleLoader, setSimpleLoader] = useState(false);
 
 
   const connectWithContract =async () => {
     try {
       const ethersProvider = new ethers.providers.Web3Provider(provider as IProvider);
       const etherSigner = ethersProvider.getSigner();
-      const contract = new ethers.Contract(HOUSE_CONTRACT_ADDRESS, abi, etherSigner);
+      const contract = new ethers.Contract(HOUSE_CONTRACT_ADDRESS, abi.abi, etherSigner);
       return contract;
     } catch (error) {
       toast(`Error! ${error}`, {
@@ -291,6 +294,43 @@ export const AdminHouseContextProvider = ({ children }: { children: React.ReactN
     }
   };
 
+  // const handleSimpleMint = async () => {
+  //   if(!provider) {
+  //     toast(`Please refresh and login again`, {
+  //       icon: "❌",
+  //       style: toastStyle,
+  //       position: "bottom-center",
+  //     });
+  //   }
+  //   try {
+  //     setSimpleLoader(true);
+  //     console.log({
+  //       "web3authAddress": web3authAddress,
+  //       "web3authbalance": web3authBalance
+
+  //     });
+  //     const contractAddress = '0xb327ED3823712d1103292B955D2Cd676ad1F6736';
+  //     const ethersProvider = new ethers.providers.Web3Provider(provider as IProvider);
+  //     const ethersSigner = ethersProvider.getSigner();
+  //     const contract = new ethers.Contract(contractAddress, simpleAbi.abi, ethersSigner);
+  //     const { hash } = await contract.safeMint("0x9BaC0A3CdF46F59e9624c23A6E9618eEf267FFC6");
+  //     setSimpleLoader(false);
+  //     toast(`Success! ${hash}`, {
+  //       icon: "✅",
+  //       style: toastStyle,
+  //       position: "bottom-center",
+  //     });
+  //   } catch (error) {
+  //     setSimpleLoader(false)
+  //     console.log("logout", error);
+  //     toast(`Error! ${error}`, {
+  //       icon: "❌",
+  //       style: toastStyle,
+  //       position: "bottom-center",
+  //     });
+  //   }
+  // }
+
 
   return (
     <AdminHouseContext.Provider
@@ -308,7 +348,7 @@ export const AdminHouseContextProvider = ({ children }: { children: React.ReactN
         handlePMinted,
         pMintedLoader,
         handleWlMinted,
-        wlMintedLoader
+        wlMintedLoader,
       }}
     >
       {children}
